@@ -5,8 +5,7 @@ using TMPro;
 public class ResultManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _scoreText;
-    [SerializeField] private TextMeshProUGUI _killText;
-    [SerializeField] private TextMeshProUGUI _progText;
+    [SerializeField] private TextMeshProUGUI _timeText;
     [SerializeField] private ScoreData _scoreData;
 
     void Start()
@@ -22,9 +21,12 @@ public class ResultManager : MonoBehaviour
     private void UpdateText()
     {
         _scoreText.text = "Score : " + _scoreData.score.ToString("N0");
-        _killText.text = "Kill : " + _scoreData.KillCount.ToString("N0");
-        if(_scoreData.stageProgress > 100f) _scoreData.stageProgress = 100f;
-        _progText.text = "Stage : " + _scoreData.stageProgress.ToString("N0") +"%";
+
+        int minutes = Mathf.FloorToInt(_scoreData.timer / 60f);
+        int seconds = Mathf.FloorToInt(_scoreData.timer % 60f);
+        int millis = Mathf.FloorToInt(_scoreData.timer % 1000f);
+
+        _timeText.text = $"ClearTime : {minutes:00}:{seconds:00}.{millis:000}";
     }
 
     public void ToTitle()
@@ -33,6 +35,6 @@ public class ResultManager : MonoBehaviour
     }
     public void ReTry()
     {
-        SceneManager.LoadScene("MainGameScene");
+        SceneManager.LoadScene("MainScene");
     }
 }
