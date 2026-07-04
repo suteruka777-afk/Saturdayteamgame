@@ -73,6 +73,15 @@ public class MainGameManager : MonoBehaviour
     public void ToResult(bool a_isClear = false)
     {
         _scoreData.isClear = a_isClear;
+        _state = GameState.GameEnd;
+        if (_scoreData.isClear)
+        {
+            //クリア演出とか
+        }
+        else
+        {
+            //負け演出とか
+        }
         SceneManager.LoadScene("ResultScene");
     }
 }
