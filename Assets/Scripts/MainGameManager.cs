@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class MainGameManager : MonoBehaviour
 {
@@ -21,7 +23,7 @@ public class MainGameManager : MonoBehaviour
     }
     void Start()
     {
-        
+        Init();
     }
 
     void Update()
@@ -40,6 +42,12 @@ public class MainGameManager : MonoBehaviour
                 break;
         }
     }
+
+    private void Init()
+    {
+        _state = GameState.SetUp;
+        _scoreData.SetUp();
+    }
     /// <summary>
     /// スコアの加算を行う。
     /// 引数 : 加算するスコア
@@ -48,5 +56,15 @@ public class MainGameManager : MonoBehaviour
     public void AddScore(float a_amount)
     {
         _scoreData.score += a_amount;
+    }
+    /// <summary>
+    /// リザルトへの遷移
+    /// 引数 : クリアか否か
+    /// </summary>
+    /// <param name="isClear">クリアしたかどうか</param>
+    public void ToResult(bool a_isClear = false)
+    {
+        _scoreData.isClear = a_isClear;
+        SceneManager.LoadScene("ResultScene");
     }
 }
