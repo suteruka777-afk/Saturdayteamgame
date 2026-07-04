@@ -31,10 +31,13 @@ public class MainGameManager : MonoBehaviour
         switch (_state)
         {
             case GameState.SetUp:
+                _state = GameState.Phase1;
                 break;
             case GameState.Phase1:
+                _scoreData.timer += Time.deltaTime;
                 break;
             case GameState.Phase2:
+                _scoreData.timer += Time.deltaTime;
                 break;
             case GameState.GameEnd:
                 break;
