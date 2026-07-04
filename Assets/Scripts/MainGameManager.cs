@@ -33,8 +33,10 @@ public class MainGameManager : MonoBehaviour
             case GameState.SetUp:
                 break;
             case GameState.Phase1:
+                _scoreData.timer += Time.deltaTime;
                 break;
             case GameState.Phase2:
+                _scoreData.timer += Time.deltaTime;
                 break;
             case GameState.GameEnd:
                 break;
