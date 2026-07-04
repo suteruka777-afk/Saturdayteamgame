@@ -15,7 +15,7 @@ public class MainGameManager : MonoBehaviour
     }
     public GameState _state;
 
-    public ScoreData _scoreData;
+    [SerializeField] private ScoreData _scoreData;
     
     void Awake()
     {
