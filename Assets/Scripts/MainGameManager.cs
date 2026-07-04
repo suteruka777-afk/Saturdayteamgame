@@ -19,6 +19,11 @@ public class MainGameManager : MonoBehaviour
     
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
     }
     void Start()
@@ -31,10 +36,13 @@ public class MainGameManager : MonoBehaviour
         switch (_state)
         {
             case GameState.SetUp:
+                _state = GameState.Phase1;
                 break;
             case GameState.Phase1:
+                _scoreData.timer += Time.deltaTime;
                 break;
             case GameState.Phase2:
+                _scoreData.timer += Time.deltaTime;
                 break;
             case GameState.GameEnd:
                 break;
@@ -65,6 +73,15 @@ public class MainGameManager : MonoBehaviour
     public void ToResult(bool a_isClear = false)
     {
         _scoreData.isClear = a_isClear;
+        _state = GameState.GameEnd;
+        if (_scoreData.isClear)
+        {
+            //クリア演出とか
+        }
+        else
+        {
+            //負け演出とか
+        }
         SceneManager.LoadScene("ResultScene");
     }
 }
