@@ -13,11 +13,7 @@ public class Alien_move : MonoBehaviour
     public float entryTargetY = 4.4f;
     public float entrySpeed = 3f;
 
-    [Header("★StoppingTime")]
-    public float freezeDuration = 0.5f;
-
     private bool isEntering = true;
-    private bool isFreezing = false; 
     private bool movingLeft = true;
 
     [Header("Attack")]
@@ -25,22 +21,8 @@ public class Alien_move : MonoBehaviour
     public float shotIntervalInMove = 0.8f;
     private float moveShotTimer = 0f;
 
-
-    IEnumerator FreezeGameTime()
-    {
-        isFreezing = true;   
-        Time.timeScale = 0f; 
-
-        yield return new WaitForSecondsRealtime(freezeDuration);
-
-        Time.timeScale = 1f;
-        isFreezing = false;  
-    }
-
     void Update()
     {
-        if (isFreezing) return;
-
         if (isEntering)
         {
             HandleEntry();
@@ -83,8 +65,6 @@ public class Alien_move : MonoBehaviour
         {
             transform.position = targetPosition;
             isEntering = false;
-
-            StartCoroutine(FreezeGameTime());
         }
     }
 

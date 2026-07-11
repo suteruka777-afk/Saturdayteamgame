@@ -216,3 +216,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy3
   bulletPrefab: {fileID: 1954027617289068498, guid: eb241f3d947b6154eb8a9f7e447fadd7, type: 3}
   shotInterval: 0.5
+  freezeDuration: 1.5
