@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a683445ec609f4143aeb7c0e7c51675a
+guid: d1f8bcd25a0214a3bbe76b6991787f68
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1404719282789197745
-    second: roketto_0
+      213: 1333401826788945531
+    second: alien_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: roketto_0
+      name: alien_0
       rect:
         serializedVersion: 2
-        x: 371
-        y: 118
-        width: 529
-        height: 1028
+        x: 203
+        y: 80
+        width: 853
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1b7aac3ceb09e7310800000000000000
-      internalID: 1404719282789197745
+      spriteID: b7eac9495e1318210800000000000000
+      internalID: 1333401826788945531
       vertices: []
       indices: 
       edges: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      roketto_0: 1404719282789197745
+      alien_0: 1333401826788945531
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
