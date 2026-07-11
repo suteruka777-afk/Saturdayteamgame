@@ -537,6 +537,17 @@
                     "action": "FIre",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2b5e8f29-b0fd-44a1-a3d5-cd625f405b9f",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FIre",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
