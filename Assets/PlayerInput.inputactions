@@ -3,85 +3,22 @@
     "name": "PlayerInput",
     "maps": [
         {
-            "name": "Player1",
-            "id": "e7fef3ad-d503-4320-b031-81470d34ce5b",
+            "name": "Player",
+            "id": "9925be95-e3c4-4151-b984-b2df60e1f833",
             "actions": [
                 {
                     "name": "Move",
-                    "type": "Value",
-                    "id": "7219ad11-0ca3-4007-a099-682a999de4d2",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "2D Vector",
-                    "id": "a2aecdc8-62ea-4f5c-bfdb-062b5dd1bcb7",
-                    "path": "2DVector",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "up",
-                    "id": "b0ea5524-d2db-4251-8a42-deb29c863786",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "7d64156c-033e-4730-b1aa-64ef828e74fa",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "left",
-                    "id": "9527ae2d-4dec-4b9d-b371-4a55bce11a39",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "right",
-                    "id": "527d22c8-245f-499c-a485-36c0190a27d2",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                }
-            ]
-        },
-        {
-            "name": "Player2",
-            "id": "df6857aa-2f65-471e-9286-21baa513edfc",
-            "actions": [
-                {
-                    "name": "Shot",
                     "type": "Button",
-                    "id": "80690942-d437-47ff-98cd-ba940d6d986f",
+                    "id": "8665222d-aa62-4296-b6da-bd92917a2e58",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Fire",
+                    "type": "Button",
+                    "id": "a37d9608-6b75-4333-9384-caf9f8133a47",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -91,12 +28,23 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "3126d109-27d1-4a1b-8988-2018154219ee",
+                    "id": "e051cc67-d6f9-487a-9d9b-170e042d0d2e",
                     "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Shot",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "91b6a682-e43d-4bc5-8ee1-047809d44278",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Fire",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
