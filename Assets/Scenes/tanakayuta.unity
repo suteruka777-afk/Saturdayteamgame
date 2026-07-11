@@ -942,6 +942,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerBullet
       objectReference: {fileID: 0}
+    - target: {fileID: 3393856220452003365, guid: d28b5056a73d5ae4f858301f3c7c7517, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 878130953088834983, guid: 0b915718bbcc2e84c893eeccd9bbd1bc, type: 3}
+    - target: {fileID: 3393856220452003365, guid: d28b5056a73d5ae4f858301f3c7c7517, type: 3}
+      propertyPath: m_Color.b
+      value: 0.19039513
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393856220452003365, guid: d28b5056a73d5ae4f858301f3c7c7517, type: 3}
+      propertyPath: m_Color.g
+      value: 0.19039513
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393856220452003365, guid: d28b5056a73d5ae4f858301f3c7c7517, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7056604
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
