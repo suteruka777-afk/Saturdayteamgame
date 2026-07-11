@@ -184,6 +184,9 @@ MonoBehaviour:
   moveSpeed: 4
   leftLimit: -6
   rightLimit: 6
+  entryTargetY: 4.4
+  entrySpeed: 3
+  freezeDuration: 1.5
   bulletPrefab: {fileID: 1954027617289068498, guid: eb241f3d947b6154eb8a9f7e447fadd7, type: 3}
   shotIntervalInMove: 0.8
 --- !u!114 &7392536527529623206

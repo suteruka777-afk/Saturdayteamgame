@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float maxSpeed = 10f;
-    [SerializeField] private float deceleration = 8f;
+    [SerializeField] private float deceleration = 0.0f;
     public Transform bulletSpawnPoint;
 
 
@@ -18,7 +18,11 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     public GameObject dangerObject;
 
+    void Update()
+    {
+        if (Time.timeScale == 0f) return;
 
+    }
 
     void Awake()
     {
@@ -43,33 +47,8 @@ public class PlayerController : MonoBehaviour
 
         rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
 
-        //  UpdateDirectionSprite();
     }
 
-    //  void UpdateDirectionSprite()
-    //  {
-    //      float x = inputDir.x;
-    //      float y = inputDir.y;
-
-    //      if (x > 0)
-    //    {
-    //      sr.sprite = sideSprite;
-    //         sr.flipX = true;   // 右向き
-    //     }
-    //     else if (x < 0)
-    //     {
-    //         sr.sprite = sideSprite;
-    //         sr.flipX = false;  // 左向き
-    //     }
-    //     else if (y > 0)
-    //     {
-    //         sr.sprite = backSprite;
-    //     }
-    //     else if (y < 0)
-    //     {
-    //         sr.sprite = frontSprite;
-    //     }
-    // }
 
     public void OnMovePlayer(InputAction.CallbackContext context)
     {
