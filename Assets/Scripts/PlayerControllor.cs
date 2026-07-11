@@ -18,7 +18,17 @@ public class PlayerController : MonoBehaviour
     private Vector2 velocity = Vector2.zero;
 
     private Rigidbody2D rb;
+
     private SpriteRenderer sr;
+
+    public GameObject dangerObject;
+
+    void Update()
+    {
+        if (Time.timeScale == 0f) return;
+
+    }
+
 
     void Awake()
     {
@@ -93,7 +103,30 @@ public class PlayerController : MonoBehaviour
         }
 
         rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
+
     }
+
+
+
+    
+
+
+    public void OnMovePlayer(InputAction.CallbackContext context)
+    {
+        inputDir = context.ReadValue<Vector2>();
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.name.Contains("Circle(Clone)"))
+        {
+            Debug.Log("やばい！");
+        }
+    }
+
+    public GameObject playerBulletPrefab;   // PlayerBullet を入れる
+    public float bulletSpeed = 10f;
+
+    // Input System の Fire アクションから呼ばれる
 
     private void OnFire(InputAction.CallbackContext context)
     {

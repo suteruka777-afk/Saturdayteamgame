@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +9,11 @@ public class Alien_move : MonoBehaviour
     public float leftLimit = -6f;
     public float rightLimit = 6f;
 
+    [Header("★Settings")]
+    public float entryTargetY = 4.4f;
+    public float entrySpeed = 3f;
+
+    private bool isEntering = true;
     private bool movingLeft = true;
 
     [Header("Attack")]
@@ -17,6 +23,12 @@ public class Alien_move : MonoBehaviour
 
     void Update()
     {
+        if (isEntering)
+        {
+            HandleEntry();
+            return;
+        }
+
         float step = moveSpeed * Time.deltaTime;
 
         moveShotTimer += Time.deltaTime;
@@ -31,7 +43,7 @@ public class Alien_move : MonoBehaviour
             transform.Translate(Vector3.left * step);
             if (transform.position.x <= leftLimit)
             {
-                movingLeft = false; 
+                movingLeft = false;
             }
         }
         else
@@ -41,6 +53,18 @@ public class Alien_move : MonoBehaviour
             {
                 movingLeft = true;
             }
+        }
+    }
+
+    void HandleEntry()
+    {
+        Vector3 targetPosition = new Vector3(transform.position.x, entryTargetY, transform.position.z);
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, entrySpeed * Time.deltaTime);
+
+        if (Mathf.Abs(transform.position.y - entryTargetY) < 0.05f)
+        {
+            transform.position = targetPosition;
+            isEntering = false;
         }
     }
 
