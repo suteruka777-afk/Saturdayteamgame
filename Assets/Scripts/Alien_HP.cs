@@ -7,6 +7,9 @@ public class Alien_HP : MonoBehaviour
     public int maxHp = 4;
     private int currentHp;
 
+    [Header("References")]
+    public MainGameManager gameManager;
+
     void Start()
     {
         currentHp = maxHp;
@@ -22,7 +25,6 @@ public class Alien_HP : MonoBehaviour
         if (collision.CompareTag("PlayerBullet"))
         {
             currentHp -= 1;
-
             Destroy(collision.gameObject);
 
             if (currentHp <= 0)
@@ -34,24 +36,19 @@ public class Alien_HP : MonoBehaviour
 
     void EnemyDie()
     {
-        GameObject managerObj = GameObject.Find("MainGameManager");
-
-        if (managerObj != null)
+        if (gameManager != null)
         {
-            MainGameManager manager = managerObj.GetComponent<MainGameManager>();
-
-            if (manager != null)
-            {
-                manager.ToResult();
-            }
-            else
-            {
-                Debug.LogError("MainGameManager オブジェクトに MainGameManager スクリプトが見つかりません。");
-            }
+            gameManager.ToResult(true);
+            Debug.Log("a");
         }
         else
         {
-            Debug.LogError("ヒエラルキー上に 'MainGameManager' という名前のオブジェクトが見つかりません。");
+            MainGameManager manager = Object.FindAnyObjectByType<MainGameManager>();
+            if (manager != null)
+            {
+                manager.ToResult(true);
+                Debug.Log("b");
+            }
         }
 
         Destroy(gameObject);
