@@ -24,6 +24,8 @@ public class ResutlPerformController
     public float ROCKET_FADE_START = 0.3f;
     [Tooltip("勝利時: ロケットが画面下端から月まで上昇しきるまでの秒数")]
     public float ROCKET_FLIGHT_DURATION = 1.2f;
+    [Tooltip("勝利時: 月に近づくにつれて減速するイージングの強さ。1で等速、大きいほど月の手前で急激に減速する")]
+    public float ROCKET_FLIGHT_EASE_POWER = 4f;
     [Tooltip("勝利時: 月に到達した瞬間のロケットの縮小率(開始スケールに対する倍率)。小さいほど遠近感が強く出る")]
     public float ROCKET_MOON_ARRIVAL_SCALE = 0.35f;
     [Tooltip("ロケットを画面外に配置するときの追加余白(px相当)。0だと画面端ぎりぎりで見切れる")]
@@ -37,6 +39,10 @@ public class ResutlPerformController
     public float LABEL_FALL_START_OFFSET = 700f;
     [Tooltip("勝利時: Clear文字が下端中心を軸に拡大しながらフェードインする秒数")]
     public float LABEL_ZOOM_FADE_DURATION = 0.8f;
+    [Tooltip("勝利時: Clear文字の色")]
+    public Color CLEAR_LABEL_COLOR = Color.white;
+    [Tooltip("敗北時: GameOver文字の色")]
+    public Color GAME_OVER_LABEL_COLOR = Color.white;
 
     // ===== 項目演出 (スコア・タイム) =====
     [Header("項目演出")]
@@ -58,22 +64,14 @@ public class ResutlPerformController
     [Tooltip("ボタン出現時に一瞬だけ超える最大スケール(1.0が等倍)")]
     public float BUTTON_POP_OVERSHOOT = 1.08f;
 
-    // ===== 燃焼パーティクル (敗北時、ロケットが落下しきった位置に発生) =====
+    // ===== 燃焼パーティクル (敗北時、落下中のロケットの位置に追従して発生し続ける) =====
+    // 発生量・色・寿命等はプレハブ側(Assets/Prefabs/ロケット燃.prefab)で作り込み済みのため、
+    // ここではプレハブをどのタイミングで生やすかだけを調整する
     [Header("燃焼パーティクル")]
-    [Tooltip("パーティクルが再生されてから消えるまでの秒数")]
-    public float BURN_PARTICLE_LIFETIME = 1.0f;
-    [Tooltip("一度に発生させる粒子の数")]
-    public int BURN_PARTICLE_BURST_COUNT = 30;
-    [Tooltip("粒子1個の初期サイズ(ワールド単位)")]
-    public float BURN_PARTICLE_START_SIZE = 0.4f;
-    [Tooltip("粒子が飛び散る初速")]
-    public float BURN_PARTICLE_START_SPEED = 3f;
-    [Tooltip("粒子が発生する範囲の半径")]
-    public float BURN_PARTICLE_SHAPE_RADIUS = 0.15f;
-    [Tooltip("粒子にかかる重力の強さ。大きいほど早く落ちる")]
-    public float BURN_PARTICLE_GRAVITY = 0.6f;
-
-    private const int BURN_PARTICLE_TEX_SIZE = 64;
+    [Tooltip("落下演出(ROCKET_FALL_DURATION)が何割進んだ時点で燃え始めるか(0=落下開始と同時, 1=落下しきる直前)")]
+    public float BURN_START_PROGRESS = 0.3f;
+    [Tooltip("落下が終わってエミッタを止めたあと、既に出た粒子が消えるのを待ってからオブジェクトを破棄するまでの秒数")]
+    public float BURN_STOP_DESTROY_DELAY = 2f;
 
     [Header("参照 - ロケット / 月")]
     [Tooltip("ロケットのRectTransform。移動・拡縮のアニメーション対象")]
@@ -82,6 +80,8 @@ public class ResutlPerformController
     [SerializeField] private Image _rocketImage;
     [Tooltip("月のRectTransform。勝利時にロケットが向かう目的地")]
     [SerializeField] private RectTransform _moonRect;
+    [Tooltip("敗北時にロケットへ追従させる燃焼パーティクルのプレハブ(Assets/Prefabs/ロケット燃.prefab)")]
+    [SerializeField] private ParticleSystem _burnParticlePrefab;
 
     [Header("参照 - テキスト")]
     [Tooltip("GameOver / Clear の見出しテキスト")]
@@ -106,9 +106,6 @@ public class ResutlPerformController
     private CanvasGroup _titleGroup;
 
     private bool _skipRequested;
-
-    // 燃焼パーティクル用のマテリアルは専用画像素材が無いためコード生成し、全インスタンスで共有する
-    private static Material _burnMaterial;
 
     /// <summary>
     /// 演出開始前の初期化。シーン上の初期配置・画面サイズから各種基準位置を算出する。
@@ -199,6 +196,7 @@ public class ResutlPerformController
             _labelText.rectTransform.pivot = new Vector2(0.5f, 0.5f);
             _labelText.rectTransform.anchoredPosition = _labelRestPos;
             _labelText.rectTransform.localScale = Vector3.one;
+            _labelText.color = CLEAR_LABEL_COLOR;
             _labelText.alpha = 0f;
 
             _scoreText.rectTransform.localScale = Vector3.one;
@@ -213,6 +211,7 @@ public class ResutlPerformController
 
             _labelText.rectTransform.anchoredPosition = _labelRestPos + Vector2.up * LABEL_FALL_START_OFFSET;
             _labelText.rectTransform.localScale = Vector3.one;
+            _labelText.color = GAME_OVER_LABEL_COLOR;
             _labelText.alpha = 1f;
 
             _scoreText.rectTransform.localScale = Vector3.zero;
@@ -223,11 +222,15 @@ public class ResutlPerformController
     }
 
     /// <summary>
-    /// 敗北時: ロケットが画面上端から下端まで落下しながらフェード+縮小(疑似ディゾルブ)し、
-    /// 最後に燃焼パーティクルを発生させて非表示になる。
+    /// 敗北時: ロケットが画面上端から下端まで落下しながらフェード+縮小(疑似ディゾルブ)する。
+    /// 落下がBURN_START_PROGRESS割まで進んだ時点でロケット位置に燃焼パーティクルを発生させ、
+    /// 以後は毎フレームその位置に追従させることで「燃えながら落ちる」見た目にする。
+    /// Skip時は燃焼を一切発生させず即座に最終状態へスナップする。
     /// </summary>
     private IEnumerator RocketBurnRoutine()
     {
+        ParticleSystem burnPs = null;
+
         yield return Tween(ROCKET_FALL_DURATION, t =>
         {
             float easeT = t * t; // ease-in: 落下が徐々に加速していく感覚
@@ -236,11 +239,28 @@ public class ResutlPerformController
 
             float fadeT = Mathf.Clamp01((t - ROCKET_FADE_START) / (1f - ROCKET_FADE_START));
             SetImageAlpha(_rocketImage, 1f - fadeT);
+
+            if (_skipRequested)
+            {
+                return;
+            }
+
+            if (burnPs == null && t >= BURN_START_PROGRESS)
+            {
+                burnPs = SpawnBurnParticleInstance();
+            }
+
+            if (burnPs != null)
+            {
+                burnPs.transform.position = ConvertUiPositionToWorld(_rocketRect);
+            }
         });
 
-        if (!_skipRequested)
+        if (burnPs != null)
         {
-            SpawnBurnParticles(_rocketRect);
+            // 追従用のエミッタは停止するだけ。既に出た粒子は寿命が尽きるまで自然に消えていく
+            burnPs.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            Object.Destroy(burnPs.gameObject, BURN_STOP_DESTROY_DELAY);
         }
 
         _rocketRect.gameObject.SetActive(false);
@@ -258,7 +278,8 @@ public class ResutlPerformController
 
         yield return Tween(ROCKET_FLIGHT_DURATION, t =>
         {
-            float easeT = 1f - Mathf.Pow(1f - t, 3f); // ease-out: 月の手前でゆっくり収束
+            // ease-out: 指数(ROCKET_FLIGHT_EASE_POWER)が大きいほど月の手前で急激に減速する
+            float easeT = 1f - Mathf.Pow(1f - t, ROCKET_FLIGHT_EASE_POWER);
             _rocketRect.position = Vector3.Lerp(startPos, endPos, easeT);
             _rocketRect.localScale = Vector3.Lerp(_rocketStartScale, _rocketStartScale * ROCKET_MOON_ARRIVAL_SCALE, easeT);
         });
@@ -396,117 +417,37 @@ public class ResutlPerformController
     }
 
     /// <summary>
-    /// ロケットの燃焼パーティクルをワールド空間に生成する。
-    /// Canvasが Screen Space - Overlay のため、UI階層の中に直接ParticleSystemを置いても
-    /// 描画されない(オーバーレイCanvasはカメラを介さず描画されるため)。
-    /// そこでUI上の画面位置をワールド座標に変換し、Canvas外の独立したGameObjectとして生成する。
+    /// UI要素(RectTransform)の画面上の位置を、Main Cameraから見たワールド座標に変換する。
+    /// Canvasが Screen Space - Overlay のため、UI階層の中に直接ParticleSystem等の
+    /// 通常のRendererを置いても描画されない(オーバーレイCanvasはカメラを介さず描画されるため)。
+    /// そのためワールド空間のオブジェクトをUIに追従させたい場合はこの変換を毎フレーム行う。
     /// </summary>
-    private void SpawnBurnParticles(RectTransform a_uiRect)
+    private static Vector3 ConvertUiPositionToWorld(RectTransform a_uiRect)
     {
         Camera cam = Camera.main;
         if (cam == null)
         {
-            return;
+            return a_uiRect.position;
         }
 
         Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, a_uiRect.position);
-        Vector3 worldPos = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, -cam.transform.position.z));
-
-        GameObject burstObj = new GameObject("RocketBurnParticles");
-        burstObj.transform.position = worldPos;
-
-        ParticleSystem ps = burstObj.AddComponent<ParticleSystem>();
-        // AddComponent直後は既定パラメータで自動再生されてしまうため、設定完了まで一旦止める
-        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-
-        ParticleSystem.MainModule main = ps.main;
-        main.duration = BURN_PARTICLE_LIFETIME;
-        main.loop = false;
-        main.startLifetime = BURN_PARTICLE_LIFETIME * 0.8f;
-        main.startSpeed = BURN_PARTICLE_START_SPEED;
-        main.startSize = BURN_PARTICLE_START_SIZE;
-        main.startColor = new Color(1f, 0.55f, 0.15f);
-        main.gravityModifier = BURN_PARTICLE_GRAVITY;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-
-        ParticleSystem.EmissionModule emission = ps.emission;
-        emission.rateOverTime = 0f;
-        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, BURN_PARTICLE_BURST_COUNT) });
-
-        ParticleSystem.ShapeModule shape = ps.shape;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = BURN_PARTICLE_SHAPE_RADIUS;
-
-        ParticleSystem.ColorOverLifetimeModule colorOverLifetime = ps.colorOverLifetime;
-        colorOverLifetime.enabled = true;
-        Gradient gradient = new Gradient();
-        gradient.SetKeys(
-            new[]
-            {
-                new GradientColorKey(new Color(1f, 0.55f, 0.15f), 0f),
-                new GradientColorKey(new Color(0.3f, 0.3f, 0.3f), 1f)
-            },
-            new[]
-            {
-                new GradientAlphaKey(1f, 0f),
-                new GradientAlphaKey(0f, 1f)
-            });
-        colorOverLifetime.color = gradient;
-
-        // ランタイム生成のParticleSystemはマテリアル未設定のままだと何も描画されないため明示的に割り当てる
-        ParticleSystemRenderer psRenderer = burstObj.GetComponent<ParticleSystemRenderer>();
-        psRenderer.material = GetBurnMaterial();
-
-        ps.Play();
-        Object.Destroy(burstObj, BURN_PARTICLE_LIFETIME + 0.5f);
+        return cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, -cam.transform.position.z));
     }
 
     /// <summary>
-    /// 燃焼パーティクル用マテリアルを取得する(初回のみ生成し、以降は使い回す)。
+    /// 燃焼パーティクルのプレハブ(_burnParticlePrefab)をワールド空間にインスタンス化する。
+    /// プレハブ側で発生量・色・寿命・再生設定(loop / playOnAwake)まで作り込み済みのため、
+    /// 生成すればそのまま燃え始める。停止・破棄は呼び出し側の責任。
     /// </summary>
-    private static Material GetBurnMaterial()
+    private ParticleSystem SpawnBurnParticleInstance()
     {
-        if (_burnMaterial == null)
+        if (_burnParticlePrefab == null)
         {
-            // ビルド設定次第でSprites/Defaultが含まれないケースに備え、uGUIが必ず含むUI/Defaultへフォールバック
-            Shader shader = Shader.Find("Sprites/Default");
-            if (shader == null)
-            {
-                shader = Shader.Find("UI/Default");
-            }
-
-            _burnMaterial = new Material(shader)
-            {
-                mainTexture = CreateSoftCircleTexture(BURN_PARTICLE_TEX_SIZE)
-            };
+            return null;
         }
 
-        return _burnMaterial;
-    }
-
-    /// <summary>
-    /// 専用のパーティクル画像素材が無いため、中心から縁へ透明になる円のテクスチャをコード生成する。
-    /// </summary>
-    private static Texture2D CreateSoftCircleTexture(int a_size)
-    {
-        Texture2D tex = new Texture2D(a_size, a_size, TextureFormat.RGBA32, false);
-        float half = a_size * 0.5f;
-        Color32[] pixels = new Color32[a_size * a_size];
-
-        for (int y = 0; y < a_size; y++)
-        {
-            for (int x = 0; x < a_size; x++)
-            {
-                float dist = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(half, half)) / half;
-                float alpha = Mathf.Clamp01(1f - dist);
-                byte alphaByte = (byte)(alpha * alpha * 255f);
-                pixels[y * a_size + x] = new Color32(255, 255, 255, alphaByte);
-            }
-        }
-
-        tex.SetPixels32(pixels);
-        tex.Apply();
-        return tex;
+        Vector3 spawnPos = ConvertUiPositionToWorld(_rocketRect);
+        return Object.Instantiate(_burnParticlePrefab, spawnPos, _burnParticlePrefab.transform.rotation);
     }
 
     private static void SetImageAlpha(Image a_image, float a_alpha)
