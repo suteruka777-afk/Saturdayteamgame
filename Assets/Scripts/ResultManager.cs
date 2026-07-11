@@ -4,19 +4,23 @@ using TMPro;
 
 public class ResultManager : MonoBehaviour
 {
+    [Header("テキスト")]
     [SerializeField] private TextMeshProUGUI _clearLb;
     [SerializeField] private TextMeshProUGUI _scoreText;
     [SerializeField] private TextMeshProUGUI _timeText;
+
+    [Header("データ")]
     [SerializeField] private ScoreData _scoreData;
+
+    [Header("演出")]
+    [SerializeField] private ResutlPerformController _performController;
 
     void Start()
     {
         UpdateText();
-    }
 
-    void Update()
-    {
-        
+        _performController.Init();
+        StartCoroutine(_performController.Play(_scoreData.isClear));
     }
 
     private void UpdateText()
