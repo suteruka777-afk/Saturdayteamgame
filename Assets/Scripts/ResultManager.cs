@@ -41,6 +41,6 @@ public class ResultManager : MonoBehaviour
     }
     public void ReTry()
     {
-        SceneManager.LoadScene("MainScene");
+        SceneManager.LoadScene("tanakayuta");
     }
 }
