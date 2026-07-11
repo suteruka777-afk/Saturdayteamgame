@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerHP : MonoBehaviour
 {
-    [SerializeField] private int hp = 5;  // Inspector ‚©‚ç•ÏX‚Å‚«‚é
+    [SerializeField] private int hp = 5;  // Inspector ã‹ã‚‰å¤‰æ›´ã§ãã‚‹
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -16,8 +16,9 @@ public class PlayerHP : MonoBehaviour
 
             if (hp <= 0)
             {
-                Debug.Log("‚Ü‚¶‚â‚Î‚¢I");
+                Debug.Log("ã¾ã˜ã‚„ã°ã„ï¼");
             }
         }
     }
 }
+

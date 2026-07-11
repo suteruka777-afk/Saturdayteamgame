@@ -108,7 +108,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-    
+
 
 
     public void OnMovePlayer(InputAction.CallbackContext context)
@@ -123,8 +123,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public GameObject playerBulletPrefab;   // PlayerBullet を入れる
-    public float bulletSpeed = 10f;
+    public GameObject PlayerBulletPrefab;   // PlayerBullet を入れる
+    public float BulletSpeed = 10f;
 
     // Input System の Fire アクションから呼ばれる
 
