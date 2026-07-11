@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Enemy3 : MonoBehaviour
@@ -7,8 +8,28 @@ public class Enemy3 : MonoBehaviour
     [Header("Shot Interval (seconds)")]
     public float shotInterval = 0.5f;
     private float timer = 0.0f;
+
+    [Header("★StoppingTime")]
+    public float freezeDuration = 0.5f;
+
+
+    void Start()
+    {
+        StartCoroutine(FreezeGameTime());
+    }
+
+    IEnumerator FreezeGameTime()
+    {
+        Time.timeScale = 0f; 
+
+        yield return new WaitForSecondsRealtime(freezeDuration);
+
+        Time.timeScale = 1f; 
+    }
+
     void Update()
     {
+
         timer += Time.deltaTime;
         if (timer >= shotInterval)
         {
