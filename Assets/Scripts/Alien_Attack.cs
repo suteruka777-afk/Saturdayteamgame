@@ -27,11 +27,11 @@ public class Enemy3 : MonoBehaviour
             Instantiate(bulletPrefab, spawnPosition, Quaternion.identity);
 
             // 2.
-            Quaternion leftRotation = Quaternion.Euler(0, 0, 30f);
+            Quaternion leftRotation = Quaternion.Euler(0, 0, 50f);
             Instantiate(bulletPrefab, spawnPosition, leftRotation);
 
             // 3.
-            Quaternion rightRotation = Quaternion.Euler(0, 0, -30f);
+            Quaternion rightRotation = Quaternion.Euler(0, 0, -50f);
             Instantiate(bulletPrefab, spawnPosition, rightRotation);
         }
     }

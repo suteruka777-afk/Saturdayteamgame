@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float maxSpeed = 10f;
-    [SerializeField] private float deceleration = 8f;
+    [SerializeField] private float deceleration = 0.0f;
     public Transform bulletSpawnPoint;
 
 
