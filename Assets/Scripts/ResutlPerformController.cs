@@ -24,6 +24,8 @@ public class ResutlPerformController
     public float ROCKET_FADE_START = 0.3f;
     [Tooltip("勝利時: ロケットが画面下端から月まで上昇しきるまでの秒数")]
     public float ROCKET_FLIGHT_DURATION = 1.2f;
+    [Tooltip("勝利時: 月に近づくにつれて減速するイージングの強さ。1で等速、大きいほど月の手前で急激に減速する")]
+    public float ROCKET_FLIGHT_EASE_POWER = 4f;
     [Tooltip("勝利時: 月に到達した瞬間のロケットの縮小率(開始スケールに対する倍率)。小さいほど遠近感が強く出る")]
     public float ROCKET_MOON_ARRIVAL_SCALE = 0.35f;
     [Tooltip("ロケットを画面外に配置するときの追加余白(px相当)。0だと画面端ぎりぎりで見切れる")]
@@ -37,6 +39,10 @@ public class ResutlPerformController
     public float LABEL_FALL_START_OFFSET = 700f;
     [Tooltip("勝利時: Clear文字が下端中心を軸に拡大しながらフェードインする秒数")]
     public float LABEL_ZOOM_FADE_DURATION = 0.8f;
+    [Tooltip("勝利時: Clear文字の色")]
+    public Color CLEAR_LABEL_COLOR = Color.white;
+    [Tooltip("敗北時: GameOver文字の色")]
+    public Color GAME_OVER_LABEL_COLOR = Color.white;
 
     // ===== 項目演出 (スコア・タイム) =====
     [Header("項目演出")]
@@ -190,6 +196,7 @@ public class ResutlPerformController
             _labelText.rectTransform.pivot = new Vector2(0.5f, 0.5f);
             _labelText.rectTransform.anchoredPosition = _labelRestPos;
             _labelText.rectTransform.localScale = Vector3.one;
+            _labelText.color = CLEAR_LABEL_COLOR;
             _labelText.alpha = 0f;
 
             _scoreText.rectTransform.localScale = Vector3.one;
@@ -204,6 +211,7 @@ public class ResutlPerformController
 
             _labelText.rectTransform.anchoredPosition = _labelRestPos + Vector2.up * LABEL_FALL_START_OFFSET;
             _labelText.rectTransform.localScale = Vector3.one;
+            _labelText.color = GAME_OVER_LABEL_COLOR;
             _labelText.alpha = 1f;
 
             _scoreText.rectTransform.localScale = Vector3.zero;
@@ -270,7 +278,8 @@ public class ResutlPerformController
 
         yield return Tween(ROCKET_FLIGHT_DURATION, t =>
         {
-            float easeT = 1f - Mathf.Pow(1f - t, 3f); // ease-out: 月の手前でゆっくり収束
+            // ease-out: 指数(ROCKET_FLIGHT_EASE_POWER)が大きいほど月の手前で急激に減速する
+            float easeT = 1f - Mathf.Pow(1f - t, ROCKET_FLIGHT_EASE_POWER);
             _rocketRect.position = Vector3.Lerp(startPos, endPos, easeT);
             _rocketRect.localScale = Vector3.Lerp(_rocketStartScale, _rocketStartScale * ROCKET_MOON_ARRIVAL_SCALE, easeT);
         });

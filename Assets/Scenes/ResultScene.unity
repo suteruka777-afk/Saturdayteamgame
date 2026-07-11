@@ -156,12 +156,15 @@ MonoBehaviour:
     ROCKET_FALL_DURATION: 2
     ROCKET_BURN_SCALE: 0.4
     ROCKET_FADE_START: 0.3
-    ROCKET_FLIGHT_DURATION: 1.2
+    ROCKET_FLIGHT_DURATION: 3
+    ROCKET_FLIGHT_EASE_POWER: 5
     ROCKET_MOON_ARRIVAL_SCALE: 0.35
     SCREEN_EDGE_MARGIN: 100
     LABEL_FALL_DURATION: 0.9
     LABEL_FALL_START_OFFSET: 700
     LABEL_ZOOM_FADE_DURATION: 0.8
+    CLEAR_LABEL_COLOR: {r: 0.972549, g: 0.81592655, b: 0, a: 1}
+    GAME_OVER_LABEL_COLOR: {r: 0.990566, g: 0, b: 0, a: 1}
     ITEM_POP_DURATION: 0.25
     ITEM_POP_OVERSHOOT: 1.2
     ITEM_POP_INTERVAL: 0.15
@@ -709,7 +712,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -848,7 +851,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
