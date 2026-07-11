@@ -17,6 +17,7 @@ public class PlayerHP : MonoBehaviour
             if (hp <= 0)
             {
                 Debug.Log("まじやばい！");
+                MainGameManager.Instance.ToResult();
             }
         }
     }
