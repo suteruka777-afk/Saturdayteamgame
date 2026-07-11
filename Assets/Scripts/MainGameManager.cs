@@ -16,7 +16,7 @@ public class MainGameManager : MonoBehaviour
     public GameState _state;
 
     [SerializeField] private ScoreData _scoreData;
-    
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -26,8 +26,14 @@ public class MainGameManager : MonoBehaviour
         }
         Instance = this;
     }
+
     void Start()
     {
+        if (_scoreData == null)
+        {
+            _scoreData = new ScoreData();
+        }
+
         Init();
     }
 
@@ -39,10 +45,16 @@ public class MainGameManager : MonoBehaviour
                 _state = GameState.Phase1;
                 break;
             case GameState.Phase1:
-                _scoreData.timer += Time.deltaTime;
+                if (_scoreData != null)
+                {
+                    _scoreData.timer += Time.deltaTime;
+                }
                 break;
             case GameState.Phase2:
-                _scoreData.timer += Time.deltaTime;
+                if (_scoreData != null)
+                {
+                    _scoreData.timer += Time.deltaTime;
+                }
                 break;
             case GameState.GameEnd:
                 break;
@@ -54,8 +66,13 @@ public class MainGameManager : MonoBehaviour
     private void Init()
     {
         _state = GameState.SetUp;
-        _scoreData.SetUp();
+
+        if (_scoreData != null)
+        {
+            _scoreData.SetUp();
+        }
     }
+
     /// <summary>
     /// スコアの加算を行う。
     /// 引数 : 加算するスコア
@@ -63,25 +80,42 @@ public class MainGameManager : MonoBehaviour
     /// <param name="a_amount">加算するスコア</param>
     public void AddScore(float a_amount)
     {
-        _scoreData.score += a_amount;
+        if (_scoreData != null)
+        {
+            _scoreData.score += a_amount;
+        }
     }
+
     /// <summary>
     /// リザルトへの遷移
     /// 引数 : クリアか否か
     /// </summary>
-    /// <param name="isClear">クリアしたかどうか</param>
+    /// /// <param name="isClear">クリアしたかどうか</param>
+
     public void ToResult(bool a_isClear = false)
     {
-        _scoreData.isClear = a_isClear;
         _state = GameState.GameEnd;
-        if (_scoreData.isClear)
+
+        if (_scoreData != null)
         {
-            //クリア演出とか
+            _scoreData.isClear = a_isClear;
+
+            if (_scoreData.isClear)
+            {
+                //クリア演出とか
+                Debug.Log("クリア演出");
+            }
+            else
+            {
+                //負け演出とか
+                Debug.Log("負け演出");
+            }
         }
         else
         {
-            //負け演出とか
+            Debug.LogWarning("_scoreData が null のため、演出分岐をスキップします。");
         }
+
         SceneManager.LoadScene("ResultScene");
     }
 }

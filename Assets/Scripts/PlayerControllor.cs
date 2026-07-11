@@ -110,6 +110,7 @@ public class PlayerController : MonoBehaviour
 
 
 
+
     public void OnMovePlayer(InputAction.CallbackContext context)
     {
         inputDir = context.ReadValue<Vector2>();
