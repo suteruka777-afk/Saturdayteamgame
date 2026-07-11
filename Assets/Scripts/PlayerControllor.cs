@@ -1,10 +1,12 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private float deceleration = 8f;
+    public Transform bulletSpawnPoint;
+
 
     //public Sprite sideSprite;
     //public Sprite backSprite;
@@ -41,7 +43,7 @@ public class PlayerController : MonoBehaviour
 
         rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
 
-      //  UpdateDirectionSprite();
+        //  UpdateDirectionSprite();
     }
 
     //  void UpdateDirectionSprite()
@@ -52,12 +54,12 @@ public class PlayerController : MonoBehaviour
     //      if (x > 0)
     //    {
     //      sr.sprite = sideSprite;
-    //         sr.flipX = true;   // �E����
+    //         sr.flipX = true;   // 右向き
     //     }
     //     else if (x < 0)
     //     {
     //         sr.sprite = sideSprite;
-    //         sr.flipX = false;  // ������
+    //         sr.flipX = false;  // 左向き
     //     }
     //     else if (y > 0)
     //     {
@@ -69,18 +71,36 @@ public class PlayerController : MonoBehaviour
     //     }
     // }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.gameObject == dangerObject)
-        {
-            Debug.Log("��΂��I");
-        }
-    }
-
-
-
     public void OnMovePlayer(InputAction.CallbackContext context)
     {
         inputDir = context.ReadValue<Vector2>();
     }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.name.Contains("Circle(Clone)"))
+        {
+            Debug.Log("やばい！");
+        }
+    }
+
+    public GameObject playerBulletPrefab;   // PlayerBullet を入れる
+    public float bulletSpeed = 10f;
+
+    // Input System の Fire アクションから呼ばれる
+    private void OnFire(InputAction.CallbackContext context)
+    {
+        GameObject bullet = Instantiate(
+            playerBulletPrefab,
+            bulletSpawnPoint.position,   // ← ここがポイント！
+            Quaternion.identity
+        );
+
+        Rigidbody2D rbBullet = bullet.GetComponent<Rigidbody2D>();
+        if (rbBullet != null)
+            rbBullet.linearVelocity = Vector2.up * bulletSpeed;
+    }
+
+
+
+
 }
