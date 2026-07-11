@@ -86,7 +86,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d1f8bcd25a0214a3bbe76b6991787f68, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -134,7 +134,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 2}
+    oldSize: {x: 12.23, y: 12.04}
     newSize: {x: 1, y: 2}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -186,7 +186,6 @@ MonoBehaviour:
   rightLimit: 6
   entryTargetY: 4.4
   entrySpeed: 3
-  freezeDuration: 1.5
   bulletPrefab: {fileID: 1954027617289068498, guid: eb241f3d947b6154eb8a9f7e447fadd7, type: 3}
   shotIntervalInMove: 0.8
 --- !u!114 &7392536527529623206
@@ -216,4 +215,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy3
   bulletPrefab: {fileID: 1954027617289068498, guid: eb241f3d947b6154eb8a9f7e447fadd7, type: 3}
   shotInterval: 0.5
-  freezeDuration: 1.5
