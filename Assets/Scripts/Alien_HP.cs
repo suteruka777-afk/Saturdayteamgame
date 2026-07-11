@@ -34,6 +34,26 @@ public class Alien_HP : MonoBehaviour
 
     void EnemyDie()
     {
+        GameObject managerObj = GameObject.Find("MainGameManager");
+
+        if (managerObj != null)
+        {
+            MainGameManager manager = managerObj.GetComponent<MainGameManager>();
+
+            if (manager != null)
+            {
+                manager.ToResult();
+            }
+            else
+            {
+                Debug.LogError("MainGameManager オブジェクトに MainGameManager スクリプトが見つかりません。");
+            }
+        }
+        else
+        {
+            Debug.LogError("ヒエラルキー上に 'MainGameManager' という名前のオブジェクトが見つかりません。");
+        }
+
         Destroy(gameObject);
     }
 }
