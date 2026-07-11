@@ -13,6 +13,5 @@ MonoBehaviour:
   m_Name: ScoreData
   m_EditorClassIdentifier: Assembly-CSharp::ScoreData
   score: 0
-  KillCount: 0
-  stageProgress: 0
-  isClear: 0
+  timer: 2.5153053
+  isClear: 1
