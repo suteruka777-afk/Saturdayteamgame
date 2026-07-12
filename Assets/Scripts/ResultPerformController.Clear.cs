@@ -116,6 +116,9 @@ public partial class ResultPerformController
     private Vector3 _rocketLandedScale;
     private Vector3 _rocketLandedPos;
 
+    // 軌跡パーティクルを「少し後ろ」に出すため、1フレーム前の位置を保持する
+    private Vector3 _rocketPrevPos;
+
     // シャドウの「見えている時」の目標アルファ値。シーン側で設定された値をInit()時に読み取って使う
     private float _shadowTargetAlpha;
 
@@ -180,6 +183,7 @@ public partial class ResultPerformController
 
         float launchAngle = ComputeFacingAngle(arcControlPoint - startPos);
         float uprightAngle = ROCKET_SPRITE_FORWARD_OFFSET;
+        _rocketPrevPos = startPos;
         yield return Tween(ROCKET_FLIGHT_DURATION, t =>
         {
             // ease-out: 指数(ROCKET_FLIGHT_EASE_POWER)が大きいほどホバー地点の手前で急激に減速する
@@ -190,6 +194,7 @@ public partial class ResultPerformController
 
             float moveProgress = t * ROCKET_FLIGHT_DURATION / totalMoveDuration;
             trailTimer = UpdateTrailSpawn(trailTimer, moveProgress);
+            _rocketPrevPos = _rocketRect.position;
         });
 
         // 着地: ホバー地点から月の表面まで、減速しながら降りる(ソフトランディング)。
@@ -202,6 +207,7 @@ public partial class ResultPerformController
 
             float moveProgress = (ROCKET_FLIGHT_DURATION + t * ROCKET_LANDING_DURATION) / totalMoveDuration;
             trailTimer = UpdateTrailSpawn(trailTimer, moveProgress);
+            _rocketPrevPos = _rocketRect.position;
         });
 
         if (!_skipRequested)
@@ -304,7 +310,7 @@ public partial class ResultPerformController
 
         // 帰還フライト中の回転(進行方向を向く)と軌跡パーティクル
         float returnTrailTimer = 0f;
-        float returnTotalDuration = ROCKET_RETURN_DURATION;
+        _rocketPrevPos = returnStart;
         yield return Tween(ROCKET_RETURN_DURATION, t =>
         {
             float easeT = Mathf.Pow(t, ROCKET_RETURN_EASE_POWER);
@@ -322,7 +328,7 @@ public partial class ResultPerformController
             }
 
             // 軌跡パーティクル(帰還中ずっと出す)
-            float moveProgress = t * ROCKET_RETURN_DURATION / returnTotalDuration;
+            float moveProgress = t;
             if (!_skipRequested && moveProgress < 0.9f)
             {
                 returnTrailTimer += Time.deltaTime;
@@ -332,6 +338,7 @@ public partial class ResultPerformController
                     SpawnTrailParticleInstance();
                 }
             }
+            _rocketPrevPos = _rocketRect.position;
         });
 
         _rocketRect.gameObject.SetActive(false);
@@ -419,9 +426,8 @@ public partial class ResultPerformController
     }
 
     /// <summary>
-    /// 軌跡パーティクルのプレハブ(_trailParticlePrefab)を、ロケットの現在位置にワールド空間で生成する。
-    /// プレハブ側が単発(non-looping / playOnAwake)のため、生成すればそのまま再生され、
-    /// 寿命が尽きたタイミングでオブジェクトを自動で破棄する。
+    /// 軌跡パーティクルのプレハブ(_trailParticlePrefab)を、1フレーム前のロケット位置(_rocketPrevPos)に
+    /// ワールド空間で生成する。現在位置ではなく少し後ろに出すことで、より軌跡らしい見た目になる。
     /// </summary>
     private void SpawnTrailParticleInstance()
     {
@@ -430,7 +436,7 @@ public partial class ResultPerformController
             return;
         }
 
-        ParticleSystem instance = Object.Instantiate(_trailParticlePrefab, _rocketRect.position, _trailParticlePrefab.transform.rotation);
+        ParticleSystem instance = Object.Instantiate(_trailParticlePrefab, _rocketPrevPos, _trailParticlePrefab.transform.rotation);
 
         ParticleSystemRenderer psRenderer = instance.GetComponent<ParticleSystemRenderer>();
         if (psRenderer != null)
