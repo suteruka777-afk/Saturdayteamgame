@@ -25,6 +25,10 @@ public partial class ResultPerformController
     [Tooltip("ボタン出現時に一瞬だけ超える最大スケール(1.0が等倍)")]
     public float BUTTON_POP_OVERSHOOT = 1.08f;
 
+    [Header("共通 - スキップ")]
+    [Tooltip("演出開始からこの秒数が経つまでスキップ入力を無視する")]
+    public float SKIP_COOLDOWN = 0.5f;
+
     [Header("共通 - 画面レイアウト")]
     [Tooltip("ロケットを画面外に配置するときの追加余白(px相当)。0だと画面端ぎりぎりで見切れる")]
     public float SCREEN_EDGE_MARGIN = 100f;
@@ -56,6 +60,7 @@ public partial class ResultPerformController
     private CanvasGroup _titleGroup;
 
     private bool _skipRequested;
+    private float _playStartTime;
 
     /// <summary>
     /// 演出開始前の初期化。シーン上の初期配置・画面サイズから各種基準位置を算出する。
@@ -83,6 +88,7 @@ public partial class ResultPerformController
     /// </summary>
     public IEnumerator Play(bool a_isClear)
     {
+        _playStartTime = Time.time;
         SetInitialState(a_isClear);
 
         if (a_isClear)
@@ -100,6 +106,10 @@ public partial class ResultPerformController
         }
 
         yield return ButtonsFadeInRoutine();
+
+        // スキップの目的は「ボタンが出るまで飛ばす」ことなので、ここでリセットする。
+        // 以降の演出(再発射・エイリアン徘徊)は通常再生させる
+        _skipRequested = false;
 
         if (a_isClear)
         {
@@ -119,6 +129,11 @@ public partial class ResultPerformController
     /// </summary>
     public void OnSkip()
     {
+        if (Time.time - _playStartTime < SKIP_COOLDOWN)
+        {
+            return;
+        }
+
         _skipRequested = true;
     }
 
