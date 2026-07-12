@@ -101,7 +101,12 @@ public partial class ResultPerformController
 
         yield return ButtonsFadeInRoutine();
 
-        if (!a_isClear)
+        if (a_isClear)
+        {
+            // ボタン表示後、一定秒数待ってからロケットが震えて再発射する演出
+            yield return RocketRelaunchRoutine();
+        }
+        else
         {
             // ボタン表示まで終わった後に始まる、終わりのない徘徊演出。リザルト画面を離れる(シーン遷移する)まで動き続ける
             yield return AlienIntroAndWanderRoutine();

@@ -66,6 +66,30 @@ public partial class ResultPerformController
     [Tooltip("着地時に影がフェードインしきるまでの秒数")]
     public float SHADOW_FADE_DURATION = 0.3f;
 
+    [Header("クリア - 再発射")]
+    [Tooltip("ボタン表示が終わってから、ロケットが震え始めるまでの待機秒数")]
+    public float ROCKET_RELAUNCH_WAIT = 3f;
+    [Tooltip("プルプル震えている秒数")]
+    public float ROCKET_SHAKE_DURATION = 1.5f;
+    [Tooltip("震えの振幅(ピクセル相当)。ロケットが左右にどれだけ揺れるか")]
+    public float ROCKET_SHAKE_AMPLITUDE = 3f;
+    [Tooltip("1秒あたりの震えの回数")]
+    public float ROCKET_SHAKE_FREQUENCY = 30f;
+    [Tooltip("ゴゴゴと加速しながら上に飛んでいく秒数")]
+    public float ROCKET_RELAUNCH_DURATION = 2f;
+    [Tooltip("再発射のイージングの強さ。大きいほど出だしがゆっくりで後半に急加速する")]
+    public float ROCKET_RELAUNCH_EASE_POWER = 3f;
+    [Tooltip("上に飛んで画面外に出てから、帰還フライトを始めるまでの間(秒)")]
+    public float ROCKET_RETURN_WAIT = 0.5f;
+    [Tooltip("画面上側中央から画面左下へ弧を描いて帰還するまでの秒数")]
+    public float ROCKET_RETURN_DURATION = 2.5f;
+    [Tooltip("帰還時のロケットのスケール倍率(着地時スケールに対する倍率)。遠景で小さく飛んでいく感じ")]
+    public float ROCKET_RETURN_SCALE = 0.6f;
+    [Tooltip("帰還軌道の弧の膨らみ(ワールド単位)。正で右に膨らむ、負で左に膨らむ")]
+    public float ROCKET_RETURN_ARC_HEIGHT = -2f;
+    [Tooltip("帰還のイージングの強さ。大きいほど出だしがゆっくりで後半に加速する")]
+    public float ROCKET_RETURN_EASE_POWER = 2f;
+
     [Header("クリア - ラベル / 項目")]
     [Tooltip("Clear文字が下端中心を軸に拡大しながらフェードインする秒数")]
     public float LABEL_ZOOM_FADE_DURATION = 0.8f;
@@ -87,6 +111,10 @@ public partial class ResultPerformController
 
     // クリア時の発進位置(画面下端の外 + 左右オフセット)。敗北の落下終点とは独立させている
     private Vector2 _rocketLaunchPos;
+
+    // 着地後の状態を保持(再発射演出の起点に使う)
+    private Vector3 _rocketLandedScale;
+    private Vector3 _rocketLandedPos;
 
     // シャドウの「見えている時」の目標アルファ値。シーン側で設定された値をInit()時に読み取って使う
     private float _shadowTargetAlpha;
@@ -192,6 +220,10 @@ public partial class ResultPerformController
         });
         _rocketRect.localScale = arrivalScale;
 
+            // 着地後のロケットのスケール・位置を記録しておく(発射演出で使う)
+        _rocketLandedScale = arrivalScale;
+        _rocketLandedPos = _rocketRect.position;
+
         // 着地シャドウをロケットの足元へ移動させてからフェードインする
         if (_shadowImage != null)
         {
@@ -203,6 +235,106 @@ public partial class ResultPerformController
                 SetImageAlpha(_shadowImage, t * _shadowTargetAlpha);
             });
         }
+    }
+
+    /// <summary>
+    /// 着地後のロケットが、一定秒数待ったあとプルプル震え → ゴゴゴと加速上昇(土埃パーティクル付き)
+    /// → 画面外に出た後、上側中央から再登場して弧を描きながら画面左下へ帰還(軌跡パーティクル付き)する。
+    /// </summary>
+    private IEnumerator RocketRelaunchRoutine()
+    {
+        // 待機
+        yield return WaitOrSkip(ROCKET_RELAUNCH_WAIT);
+
+        // プルプル震え: 着地位置を中心に高周波で左右に揺らす
+        Vector3 shakeCenter = _rocketLandedPos;
+        float shakeElapsed = 0f;
+        while (shakeElapsed < ROCKET_SHAKE_DURATION)
+        {
+            shakeElapsed += Time.deltaTime;
+            float offsetX = Mathf.Sin(shakeElapsed * ROCKET_SHAKE_FREQUENCY * Mathf.PI * 2f) * ROCKET_SHAKE_AMPLITUDE * _rocketRect.lossyScale.x;
+            _rocketRect.position = shakeCenter + Vector3.right * offsetX;
+            yield return null;
+        }
+        _rocketRect.position = shakeCenter;
+
+        // 影をフェードアウト + 発射地点に土埃パーティクル(着地パーティクルを流用)
+        if (_shadowImage != null)
+        {
+            yield return Tween(0.2f, t =>
+            {
+                SetImageAlpha(_shadowImage, Mathf.Lerp(_shadowTargetAlpha, 0f, t));
+            });
+        }
+        SpawnLandingParticleInstance();
+
+        // ゴゴゴ加速上昇: ease-inで最初はゆっくり、どんどん速くなる
+        Vector3 launchStart = _rocketRect.position;
+        RectTransform canvasRect = _rocketRect.parent as RectTransform;
+        float canvasHalfHeight = canvasRect != null ? canvasRect.rect.height * 0.5f : 1000f;
+        float canvasHalfWidth = canvasRect != null ? canvasRect.rect.width * 0.5f : 500f;
+        float rocketHeight = _rocketRect.rect.height * _rocketLandedScale.y;
+        Vector3 launchEnd = launchStart + Vector3.up * (canvasHalfHeight + rocketHeight + SCREEN_EDGE_MARGIN);
+
+        yield return Tween(ROCKET_RELAUNCH_DURATION, t =>
+        {
+            float easeT = Mathf.Pow(t, ROCKET_RELAUNCH_EASE_POWER);
+            _rocketRect.position = Vector3.Lerp(launchStart, launchEnd, easeT);
+        });
+
+        // --- 帰還フライト ---
+        yield return WaitOrSkip(ROCKET_RETURN_WAIT);
+
+        // 画面上側中央付近から再登場
+        Vector3 returnStart = _rocketRect.parent.TransformPoint(new Vector3(0f, canvasHalfHeight + rocketHeight, 0f));
+        // 画面左下の外へ向かう
+        Vector3 returnEnd = _rocketRect.parent.TransformPoint(new Vector3(
+            -(canvasHalfWidth + rocketHeight + SCREEN_EDGE_MARGIN),
+            -(canvasHalfHeight * 0.3f),
+            0f));
+
+        Vector3 returnScale = _rocketLandedScale * ROCKET_RETURN_SCALE;
+        _rocketRect.position = returnStart;
+        _rocketRect.localScale = returnScale;
+
+        // 弧の制御点
+        Vector3 returnMid = Vector3.Lerp(returnStart, returnEnd, 0.5f);
+        Vector3 returnArcNormal = new Vector3(-(returnEnd - returnStart).y, (returnEnd - returnStart).x, 0f).normalized;
+        Vector3 returnControlPoint = returnMid + returnArcNormal * ROCKET_RETURN_ARC_HEIGHT;
+
+        // 帰還フライト中の回転(進行方向を向く)と軌跡パーティクル
+        float returnTrailTimer = 0f;
+        float returnTotalDuration = ROCKET_RETURN_DURATION;
+        yield return Tween(ROCKET_RETURN_DURATION, t =>
+        {
+            float easeT = Mathf.Pow(t, ROCKET_RETURN_EASE_POWER);
+            Vector3 currentPos = QuadraticBezier(returnStart, returnControlPoint, returnEnd, easeT);
+            _rocketRect.position = currentPos;
+
+            // 進行方向に合わせて回転
+            float nextT = Mathf.Clamp01(easeT + 0.01f);
+            Vector3 nextPos = QuadraticBezier(returnStart, returnControlPoint, returnEnd, nextT);
+            Vector3 dir = nextPos - currentPos;
+            if (dir.sqrMagnitude > 0.0001f)
+            {
+                float angle = ComputeFacingAngle(dir);
+                _rocketRect.rotation = Quaternion.Euler(0f, 0f, angle);
+            }
+
+            // 軌跡パーティクル(帰還中ずっと出す)
+            float moveProgress = t * ROCKET_RETURN_DURATION / returnTotalDuration;
+            if (!_skipRequested && moveProgress < 0.9f)
+            {
+                returnTrailTimer += Time.deltaTime;
+                if (returnTrailTimer >= ROCKET_TRAIL_INTERVAL)
+                {
+                    returnTrailTimer = 0f;
+                    SpawnTrailParticleInstance();
+                }
+            }
+        });
+
+        _rocketRect.gameObject.SetActive(false);
     }
 
     /// <summary>
