@@ -14,7 +14,7 @@ public class ResultManager : MonoBehaviour
     [SerializeField] private ScoreData _scoreData;
 
     [Header("演出")]
-    [SerializeField] private ResutlPerformController _performController;
+    [SerializeField] private ResultPerformController _performController;
 
     [Header("入力")]
     [Tooltip("演出をスキップするための入力アクション(InputSystem_Actions の Player/Skip)")]
@@ -62,7 +62,7 @@ public class ResultManager : MonoBehaviour
 
         int minutes = Mathf.FloorToInt(_scoreData.timer / 60f);
         int seconds = Mathf.FloorToInt(_scoreData.timer % 60f);
-        int millis = Mathf.FloorToInt(_scoreData.timer % 1000f);
+        int millis = Mathf.FloorToInt((_scoreData.timer % 1f) * 1000f);
 
         string timeLabel = _scoreData.isClear ? "ClearTime" : "SurvTime";
         _timeText.text = $"{timeLabel} : {minutes:00}:{seconds:00}.{millis:000}";
