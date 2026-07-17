@@ -1,0 +1,25 @@
+using UnityEngine;
+
+public class PlayerHP : MonoBehaviour
+{
+    [SerializeField] private int hp = 5;  // Inspector から変更できる
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision == null || collision.gameObject == null)
+            return;
+
+        if (collision.gameObject.name.Contains("Circle(Clone)"))
+        {
+            hp--;
+            Debug.Log("HP: " + hp);
+
+            if (hp <= 0)
+            {
+                Debug.Log("まじやばい！");
+                MainGameManager.Instance.ToResult();
+            }
+        }
+    }
+}
+
