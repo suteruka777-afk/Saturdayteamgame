@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 6034554002683327258}
   m_Layer: 0
   m_Name: Alien
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -201,6 +201,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Alien_HP
   maxHp: 4
+  gameManager: {fileID: 0}
 --- !u!114 &6034554002683327258
 MonoBehaviour:
   m_ObjectHideFlags: 0
