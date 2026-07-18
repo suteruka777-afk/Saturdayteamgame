@@ -130,6 +130,10 @@ public class PlayerController : MonoBehaviour
 
     private void OnFire(InputAction.CallbackContext context)
     {
+        // シーン破棄中(Play停止・シーン遷移の瞬間)に入力イベントが滑り込むと
+        // 後片付け後に弾が生成されて警告が出るため、非アクティブ時は発射しない
+        if (!isActiveAndEnabled) return;
+
         GameObject bullet = Instantiate(
             playerBulletPrefab,
             bulletSpawnPoint.position,
