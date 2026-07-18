@@ -9,6 +9,9 @@ public class Alien_HP : MonoBehaviour
 
     [Header("References")]
     public MainGameManager gameManager;
+    
+    [SerializeField] private ScoreData _data;
+    [SerializeField] private float _addscore = 300f;
 
     void Start()
     {
@@ -27,6 +30,8 @@ public class Alien_HP : MonoBehaviour
             currentHp -= 1;
             Destroy(collision.gameObject);
 
+            _data.score += _addscore;
+
             if (currentHp <= 0)
             {
                 EnemyDie();
@@ -36,6 +41,7 @@ public class Alien_HP : MonoBehaviour
 
     void EnemyDie()
     {
+        _data.score += _addscore * 10f;
         if (gameManager != null)
         {
             gameManager.ToResult(true);

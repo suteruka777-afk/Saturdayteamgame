@@ -202,6 +202,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Alien_HP
   maxHp: 4
   gameManager: {fileID: 0}
+  _data: {fileID: 11400000, guid: e3fb0dd5d64bd4db48baabc2068305eb, type: 2}
+  _addscore: 300
 --- !u!114 &6034554002683327258
 MonoBehaviour:
   m_ObjectHideFlags: 0
