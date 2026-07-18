@@ -1,13 +1,21 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerHPManager : MonoBehaviour
 {
     [SerializeField] private int _maxHP = 3;
     private int _currentHP;
+    [SerializeField] private Slider _hpSlider;
 
     private void Start()
     {
         _currentHP = _maxHP;
+
+        if (_hpSlider != null)
+        {
+            _hpSlider.maxValue = _maxHP;
+            _hpSlider.value = _currentHP;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision) 
@@ -22,6 +30,11 @@ public class PlayerHPManager : MonoBehaviour
     {
         _currentHP -= damage;
         _currentHP = Mathf.Clamp(_currentHP, 0, _maxHP);
+
+        if (_hpSlider != null)
+        {
+            _hpSlider.value = _currentHP;
+        }
 
         Debug.Log("åªç›ÇÃHP: " + _currentHP);
 
